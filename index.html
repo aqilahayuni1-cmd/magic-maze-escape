@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic Maze Escape: The Audit Quest</title>
+  <link rel="stylesheet" href="style.css?v=touch-1">
+  <script src="game.js?v=music-fix-2" defer></script>
+</head>
+<body>
+  <main>
+    <div class="candles" aria-hidden="true">🕯️ ✦ 🕯️</div>
+    <p class="eyebrow">THE WIZARD AUDITOR TRIAL</p>
+    <h1>Magic Maze Escape<span class="title-quest">The Audit Quest</span></h1>
+    <p class="subtitle">Three mazes. One magical audit.</p>
+    <div class="toolbar">
+      <span>⏳ <strong id="timer">60</strong>s</span>
+      <span>🪄 <span id="collection-label">Evidence</span> <strong id="crystals">0</strong>/<strong id="crystal-target">3</strong></span>
+      <span>♥ <strong id="lives">3</strong> lives</span>
+      <button id="music-button" type="button" aria-pressed="true">Music: On (Turn Off)</button>
+    </div>
+    <p id="music-status" class="music-status" role="status">Music is On. If autoplay is blocked, selecting a house starts it. Use Turn Off to mute.</p>
+    <div class="level-info"><span id="level-indicator">Level 1 — The Castle Corridors</span><span>Total Score: <strong id="total-score">0</strong></span></div>
+    <section id="start-screen" class="panel">
+      <p class="step">Step 1 of 3</p>
+      <div class="story-intro"><strong>Your mission</strong><p>Dark magic has corrupted the financial records of the magical academy! As a young wizard auditor, your mission is to explore enchanted mazes, collect missing audit evidence, identify financial risks, and complete the final magical audit before time runs out.</p></div>
+      <h2>Choose your house</h2>
+      <div class="choices" id="house-choices" role="group" aria-label="Choose a house">
+        <button class="choice gryffindor" data-house="Gryffindor" type="button" aria-pressed="false"><span>🦁</span>Gryffindor<small>Courage &amp; bravery</small><span class="house-scarf" aria-hidden="true"></span></button>
+        <button class="choice slytherin" data-house="Slytherin" type="button" aria-pressed="false"><span>🐍</span>Slytherin<small>Ambition &amp; cunning</small><span class="house-scarf" aria-hidden="true"></span></button>
+        <button class="choice ravenclaw" data-house="Ravenclaw" type="button" aria-pressed="false"><span>🦅</span>Ravenclaw<small>Wisdom &amp; curiosity</small><span class="house-scarf" aria-hidden="true"></span></button>
+        <button class="choice hufflepuff" data-house="Hufflepuff" type="button" aria-pressed="false"><span>🦡</span>Hufflepuff<small>Loyalty &amp; kindness</small><span class="house-scarf" aria-hidden="true"></span></button>
+      </div>
+      <p id="house-summary" role="status">Choose a house to continue.</p>
+      <button id="continue-button" type="button" hidden>Continue</button>
+    </section>
+    <section id="character-screen" class="panel" hidden>
+      <p class="step">Step 2 of 3</p>
+      <h2>Choose your character</h2>
+      <p id="chosen-house"></p>
+      <!-- JavaScript adds only the characters from the chosen house. -->
+      <div class="choices" id="character-choices" role="group" aria-label="Choose a character"></div>
+      <p id="character-summary" role="status">Choose a character to enter the maze.</p>
+      <p>Move with <strong>arrow keys, WASD or the on-screen arrows</strong>. Collect every magic wand 🪄 representing audit evidence, risks or findings, then reach the castle 🏰. Three levels await, with 60, 55 and 50 seconds.</p>
+      <p>Avoid the dark wizard threats! Touching an enemy costs a life and sends you back to the entrance. You have 3 lives.</p>
+      <p>Every wand earns +10 points. No quizzes: each wand reveals a real-world audit clue. Review your journal and collect a case report after each level!</p>
+      <button id="back-button" type="button">Back</button>
+      <button id="start-button" type="button" hidden>Enter the Maze</button>
+    </section>
+    <section id="game-screen" hidden>
+      <p class="identity" id="player-identity"></p>
+      <div class="mission-panel"><strong id="mission-title"></strong><p id="mission-story"></p></div>
+      <div class="camera-toolbar" hidden><button id="view-button" type="button" aria-pressed="false">View: 2D</button></div>
+      <canvas id="maze-3d" width="720" height="480" hidden></canvas>
+      <p id="camera-help" class="camera-help" hidden></p>
+      <div id="maze" role="img" aria-label="Castle maze. Use arrow keys or WASD to move."></div>
+      <div class="touch-controls" role="group" aria-label="Movement controls">
+        <button class="move-up" data-move="up" type="button" aria-label="Move up">▲</button>
+        <button class="move-left" data-move="left" type="button" aria-label="Move left">◀</button>
+        <button class="move-down" data-move="down" type="button" aria-label="Move down">▼</button>
+        <button class="move-right" data-move="right" type="button" aria-label="Move right">▶</button>
+      </div>
+      <p id="feedback" role="status">Find the magic wands!</p>
+      <div class="clue-card" aria-live="polite"><strong id="clue-title"></strong><p id="clue-action"></p><p id="clue-lesson" class="clue-lesson"></p></div>
+      <details class="audit-notebook"><summary>📖 Audit Journal <span id="journal-count">0/3</span></summary><ol id="audit-journal"></ol></details>
+      <button id="restart-button" type="button">Restart</button>
+    </section>
+    <section id="end-screen" class="panel" hidden>
+      <div id="end-icon" class="large-icon"></div>
+      <h2 id="end-title"></h2>
+      <p id="end-message"></p>
+      <p id="audit-learning" class="audit-learning" hidden></p>
+      <p id="end-victory" hidden>Congratulations! You escaped the Magic Maze!</p>
+      <p id="end-score"></p>
+      <div id="auditor-rank" class="rank-card" hidden>
+        <div id="rank-stars" class="rank-stars" aria-label="Auditor badge"></div>
+        <strong id="rank-name"></strong>
+        <p id="rank-performance"></p>
+        <p id="rank-message"></p>
+      </div>
+      <section id="certificate-section" hidden>
+        <article class="certificate" aria-labelledby="certificate-title">
+          <p class="certificate-kicker">MAGICAL ACADEMY · AUDIT QUEST</p>
+          <h3 id="certificate-title">Certificate of Magical Auditing</h3>
+          <p>Awarded to <strong id="certificate-character"></strong></p>
+          <p>House: <strong id="certificate-house"></strong></p>
+          <p>Final score: <strong id="certificate-score"></strong></p>
+          <p>Audit findings collected: <strong id="certificate-findings"></strong></p>
+          <p id="certificate-rank" class="certificate-rank"></p>
+          <div class="golden-seal" aria-hidden="true">✦<small>VERIFIED</small></div>
+          <p class="certificate-status">AUDIT COMPLETED</p>
+        </article>
+        <button id="download-certificate" type="button">Download Certificate (PNG)</button>
+        <p id="certificate-download-status" role="status"></p>
+      </section>
+      <details id="audit-report" class="audit-notebook" hidden><summary>📋 Open your audit case report</summary><ul id="audit-report-list"></ul><p id="report-summary"></p></details>
+      <button id="next-level-button" type="button" hidden>Continue to Next Level</button>
+      <button id="play-again-button" type="button">Restart Current Level</button>
+    </section>
+    <button id="new-game-button" class="new-game" type="button">Start New Game</button>
+    <p class="legend">Your avatar &nbsp; 🪄 Audit Wand &nbsp; Dark wizard: audit threat &nbsp; 🏰 Hogwarts exit</p>
+  </main>
+  <aside id="audit-scroll" class="magical-scroll" role="status" aria-live="polite" hidden>
+    <span class="scroll-icon" aria-hidden="true">📜</span>
+    <div><strong id="scroll-title"></strong><p id="scroll-description"></p></div>
+  </aside>
+</body>
+</html>
