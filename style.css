@@ -1,0 +1,306 @@
+/* A small, glowing castle scene made entirely with CSS. */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at top, #3d2944, #0c1026 70%);
+  color: #eee7ff;
+  font-family: Arial, sans-serif;
+}
+main { width: min(100%, 540px); padding: 16px; text-align: center; }
+.eyebrow { color: #d7b66b; font-size: 11px; letter-spacing: 3px; margin: 0 0 8px; }
+h1 { font-family: Georgia, serif; color: #f5dc9b; margin: 0; font-size: clamp(26px, 6vw, 36px); }
+.subtitle, .legend { color: #b9adce; font-size: 13px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 18px 0; font-size: 14px; }
+button { border: 1px solid #b89a58; border-radius: 8px; padding: 10px 18px; background: #523479; color: #fff1c8; font-size: 14px; cursor: pointer; box-shadow: 0 0 12px #d7b66b22; }
+button:hover { background: #6e459e; }
+button:focus-visible { outline: 3px solid #f5dc9b; outline-offset: 3px; }
+#music-button { padding: 8px; font-size: 12px; }
+.panel { padding: 20px; background: linear-gradient(120deg, #f0dfb8, #d9bf90); color: #342640; border: 2px solid #ad8547; border-radius: 14px; line-height: 1.5; box-shadow: 0 12px 32px #0005, inset 0 0 24px #8a632a33; }
+.panel h2 { color: #452d53; font-family: Georgia, serif; margin: 8px 0 16px; }
+.candles { color: #e4c987; font-size: 24px; letter-spacing: 12px; margin-bottom: 10px; filter: drop-shadow(0 0 10px #e7b951); }
+.step { text-transform: uppercase; letter-spacing: 2px; font-size: 11px; margin: 0; }
+.choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.choice { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px 6px; background: #292139; border: 2px solid #8d7152; }
+.choice > span { font-size: 32px; }
+.choice small { font-size: 11px; color: #eee0c7; }
+.gryffindor { background: #6d2837; }
+.slytherin { background: #214c43; }
+.ravenclaw { background: #293e65; }
+.hufflepuff { background: #69501e; }
+.choice.selected { border-color: #fff0af; box-shadow: 0 0 0 2px #7f5626, 0 0 18px #e9b84c88; }
+.identity { color: #f5dc9b; font-size: 14px; padding: 8px; background: #251d37; border: 1px solid #7c6244; border-radius: 8px; }
+.large-icon { font-size: 48px; }
+#maze { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; padding: 8px; border: 1px solid #8b6baa; border-radius: 12px; background: #101126; box-shadow: 0 0 28px #7844af33; }
+.cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 28px); border-radius: 4px; background: #211d38; }
+.wall { background: linear-gradient(135deg, #4a3564, #302741); border: 1px solid #5d4377; }
+.player { background: #674498; box-shadow: 0 0 12px #c594ff; }
+.crystal { background: #403357; box-shadow: inset 0 0 12px #d6b96555; }
+.exit { background: #4b3c27; }
+#feedback { min-height: 20px; font-size: 14px; color: #ead396; }
+/* Brief feedback after collecting a crystal or touching a spirit. */
+.collect { animation: glow 0.4s ease; }
+.hurt { animation: hurt 0.4s ease; }
+@keyframes glow { 50% { box-shadow: 0 0 32px #ffdd7a; } }
+@keyframes hurt { 50% { box-shadow: 0 0 32px #f2678c; transform: translateX(4px); } }
+@media (max-height: 740px) { main { max-width: 460px; } .toolbar { margin: 10px 0; } .subtitle, .legend { margin: 8px 0; } }
+@media (prefers-reduced-motion: reduce) { .collect, .hurt { animation: none; } }
+
+/* Level information and gentle screen entrances. */
+.level-info { display: flex; justify-content: space-between; gap: 8px; color: #e9d39b; font-size: 12px; margin: 12px 0; }
+section:not([hidden]) { animation: screen-in 0.25s ease-out; }
+@keyframes screen-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.new-game { margin-top: 14px; background: #292139; font-size: 12px; }
+.identity { display: flex; align-items: center; justify-content: center; gap: 12px; border-left: 5px solid #c7a966; }
+.identity.gryffindor { background: #442631; border-left-color: #d36c64; }
+.identity.slytherin { background: #203c35; border-left-color: #79b596; }
+.identity.ravenclaw { background: #24344d; border-left-color: #82a9db; }
+.identity.hufflepuff { background: #453a24; border-left-color: #e1bf68; }
+.choice .character-name { font-size: 14px; }
+
+/* Original small cartoon portraits, built from hair, face and a robe.
+   Each character has their own colours, initials and hairstyle/accessory. */
+.avatar { display: inline-block; width: 32px; height: 36px; position: relative; flex-shrink: 0; line-height: 1; }
+.avatar-hair { position: absolute; width: 23px; height: 22px; left: 4px; top: 0; background: var(--hair); border-radius: 12px 12px 5px 5px; }
+.avatar-face { position: absolute; width: 19px; height: 17px; left: 6px; top: 6px; border-radius: 5px 5px 9px 9px; background: var(--skin); color: #27202b; font: bold 12px Arial; letter-spacing: 3px; padding: 3px 0 0 3px; }
+.avatar-robe { position: absolute; width: 28px; height: 14px; bottom: 0; left: 2px; border-radius: 10px 10px 3px 3px; background: var(--robe); color: white; font: bold 8px Arial; text-align: center; padding-top: 4px; }
+.avatar.glasses .avatar-face::after { content: '○○'; position: absolute; left: 1px; top: 1px; font-size: 13px; letter-spacing: 0; }
+.avatar.curls .avatar-hair { width: 30px; left: 1px; border-radius: 45%; box-shadow: -2px 4px 0 var(--hair), 2px 4px 0 var(--hair); }
+.avatar.freckles .avatar-face::after { content: '· ·'; position: absolute; left: 3px; top: 8px; color: #9c502d; }
+.avatar.long .avatar-hair { height: 31px; }
+.avatar.sleek .avatar-hair { border-radius: 3px 12px 3px 3px; }
+.avatar.bob .avatar-hair { width: 28px; height: 26px; left: 2px; border-radius: 8px 8px 2px 2px; }
+.avatar.short .avatar-hair { height: 12px; border-radius: 5px 5px 0 0; }
+.avatar.star .avatar-hair { height: 30px; }
+.avatar.star::after { content: '✦'; position: absolute; top: -2px; right: -2px; color: #fff2a5; font-size: 14px; }
+.avatar.spiky .avatar-hair { clip-path: polygon(0 35%, 15% 0, 35% 25%, 55% 0, 75% 20%, 100% 0, 100% 100%, 0 100%); }
+.choice .avatar { transform: scale(1.25); margin: 8px 0; }
+.cell { position: relative; }
+.cell .avatar { width: 32px; height: 36px; transform: scale(0.85); }
+#maze.forest .wall { background: linear-gradient(135deg, #355047, #24312f); border-color: #537258; }
+#maze.chamber .wall { background: linear-gradient(135deg, #514056, #292838); border-color: #826981; }
+.exit.unlocked { background: #74602f; box-shadow: inset 0 0 16px #ffd977, 0 0 10px #ffdd7866; }
+.crystal-pop .avatar { animation: crystal-bounce 0.4s ease; }
+.points-popup { position: absolute; z-index: 2; top: -4px; left: 0; width: 100%; color: #fff1a0; font: bold 15px Arial; text-shadow: 0 1px 4px #000; pointer-events: none; animation: float-points 1s ease-out forwards; }
+@keyframes float-points { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-28px); } }
+@keyframes crystal-bounce { 50% { transform: scale(1); } }
+/* A visible red flash, in addition to the life-loss message. */
+#maze.hurt::after { content: ''; position: absolute; inset: 0; background: #fa345d55; border-radius: 12px; pointer-events: none; animation: red-flash 0.4s forwards; }
+#maze { position: relative; }
+@keyframes red-flash { to { opacity: 0; } }
+@media (max-width: 380px) { .cell .avatar { transform: scale(0.65); } .level-info { flex-direction: column; } }
+@media (prefers-reduced-motion: reduce) { section:not([hidden]), .crystal-pop .avatar { animation: none; } .points-popup { animation: none; } #maze.hurt::after { animation: none; background: transparent; } }
+
+/* Local image portraits. The old CSS portrait remains as a loading/error fallback. */
+.portrait {
+  --house-glow: #cf9c60;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid var(--house-glow);
+  border-radius: 50%;
+  background: radial-gradient(circle at top, #62516a, #181628);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--house-glow) 45%, transparent);
+}
+.portrait.gryffindor { --house-glow: #e07665; }
+.portrait.slytherin { --house-glow: #75c6a0; }
+.portrait.ravenclaw { --house-glow: #8cb8f2; }
+.portrait.hufflepuff { --house-glow: #f0cd71; }
+.portrait-image { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 25%; }
+.portrait .avatar { margin: 0; transform: none; }
+
+/* Cinematic cards reserve their size so a missing PNG cannot shift the layout. */
+#character-choices { gap: 14px; }
+#character-choices .choice {
+  position: relative;
+  padding: 0 0 14px;
+  gap: 12px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(#332942, #181522);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+#character-choices .portrait {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  border: 0;
+  border-bottom: 2px solid var(--house-glow);
+  border-radius: 0;
+  box-shadow: inset 0 -22px 32px #0005;
+}
+#character-choices .portrait .avatar { transform: scale(3); }
+#character-choices .character-name { padding: 0 8px; color: #fff0cc; font: bold 15px Georgia, serif; }
+#character-choices .choice:has(.gryffindor) { --card-glow: #e07665; }
+#character-choices .choice:has(.slytherin) { --card-glow: #75c6a0; }
+#character-choices .choice:has(.ravenclaw) { --card-glow: #8cb8f2; }
+#character-choices .choice:has(.hufflepuff) { --card-glow: #f0cd71; }
+#character-choices .choice:hover { transform: translateY(-3px); border-color: var(--card-glow); box-shadow: 0 8px 18px #0005, 0 0 16px var(--card-glow); }
+#character-choices .choice.selected { border-color: var(--card-glow); box-shadow: 0 0 0 2px #fff0c0, 0 0 22px var(--card-glow); }
+
+/* A circular portrait token fits inside exactly one existing maze square. */
+.cell { min-width: 0; min-height: 0; }
+.cell > .portrait { position: absolute; inset: 8%; width: 84%; height: 84%; border-width: 2px; }
+.cell .portrait .avatar { width: 32px; height: 36px; transform: scale(0.65); }
+.crystal-pop > .portrait { animation: portrait-bounce 0.4s ease; }
+@keyframes portrait-bounce { 50% { transform: scale(1.08); } }
+@media (max-width: 380px) {
+  #character-choices { gap: 8px; }
+  #character-choices .character-name { font-size: 13px; }
+  .cell .portrait .avatar { transform: scale(0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #character-choices .choice { transition: none; }
+  #character-choices .choice:hover { transform: none; }
+  .crystal-pop > .portrait { animation: none; }
+}
+
+/* 3D-style presentation: bevelled stone and depth, with the same 2D grid. */
+#maze { padding: 12px; border: 3px solid #897493; border-bottom: 9px solid #332439; background: linear-gradient(145deg, #171424, #090c19); box-shadow: 0 14px 0 #090a14, 0 22px 32px #0008, inset 0 2px 4px #ffffff33; }
+.wall { background: linear-gradient(145deg, #7d6288 0%, #51405f 45%, #302638 100%); border-top: 3px solid #ab8fb7; border-left: 2px solid #80678c; border-bottom: 4px solid #221d2d; box-shadow: 2px 3px 3px #0009, inset -2px -2px 4px #0005; }
+#maze.forest .wall { border-top-color: #799d80; border-bottom-color: #182a24; }
+#maze.chamber .wall { border-top-color: #aa8ea8; border-bottom-color: #251b2c; }
+.cell:not(.wall) { background: linear-gradient(135deg, #30283f, #171626); box-shadow: inset 0 2px 5px #0007; }
+.cell.player { background: radial-gradient(circle, #8060a2, #312341); }
+.cell.crystal { background: radial-gradient(circle, #75623e, #252037); text-shadow: 0 0 14px #fce5aa; }
+.cell.exit { background: linear-gradient(145deg, #5b4931, #291f1c); }
+.cell.exit.unlocked { background: radial-gradient(circle, #aa8844, #4e3d28); box-shadow: inset 0 0 12px #ffe6a9, 0 0 13px #ffdd7866; }
+.panel { border-bottom-width: 6px; box-shadow: 0 8px 0 #513e2b, 0 18px 32px #0006, inset 0 2px 4px #fff8; }
+button { border-bottom-width: 3px; box-shadow: 0 3px 0 #1a1427, 0 5px 14px #0005; }
+button:active { transform: translateY(2px); }
+#character-choices { perspective: 900px; }
+#character-choices .choice:hover { transform: translateY(-4px) rotateX(3deg); }
+#character-choices .portrait { background: radial-gradient(ellipse at 35% 25%, #806b89, #34243e 55%, #101220); }
+/* Give the fallback portraits rounded lighting until PNGs are supplied. */
+.avatar-face { background: radial-gradient(circle at 30% 25%, #fff5, transparent 45%), linear-gradient(120deg, var(--skin), var(--skin)); box-shadow: inset -3px -2px 4px #0003, 1px 2px 3px #0005; }
+.avatar-hair { box-shadow: inset 2px 2px 3px #ffffff33, inset -3px -2px 4px #0006; }
+.avatar-robe { box-shadow: inset 3px 2px 4px #ffffff33, inset -4px -2px 4px #0005; }
+.portrait { box-shadow: 0 3px 0 #17101f, 0 0 12px var(--house-glow); }
+
+/* Bald pale face, snake-like nostrils and red eyes, drawn without movie images. */
+.enemy-avatar { position: absolute; inset: 8%; display: flex; align-items: center; justify-content: center; border: 2px solid #91b994; border-radius: 50%; overflow: hidden; background: radial-gradient(circle, #3e5747, #101b18); box-shadow: 0 2px 0 #080d0b, 0 0 8px #7fc38666; }
+.villain-face { position: relative; width: 72%; height: 86%; border-radius: 48% 48% 42% 42%; background: radial-gradient(ellipse at 30% 25%, #f1f0da, #b4c3a8 65%, #687c6b); box-shadow: inset -3px -2px 4px #0005; }
+.villain-eyes { position: absolute; top: 36%; left: 16%; width: 20%; height: 10%; border-radius: 50%; background: #a32635; box-shadow: 8px 0 0 #a32635; }
+.villain-nose { position: absolute; top: 55%; left: 43%; width: 6%; height: 14%; background: #596c5b; border-radius: 50%; box-shadow: 3px 0 0 #596c5b; }
+.villain-mouth { position: absolute; bottom: 18%; left: 28%; width: 44%; height: 2px; background: #5b5653; }
+.enemy-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+.castle-avatar { position: absolute; inset: 3%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #b6925d; border-radius: 4px; background: #12172b; box-shadow: 0 2px 3px #0008; }
+.castle-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.castle-fallback { font-size: clamp(16px, 5vw, 28px); }
+.exit.unlocked .castle-avatar { border-color: #ffe596; box-shadow: 0 0 12px #ffd970, inset 0 0 5px #fff5; }
+@media (prefers-reduced-motion: reduce) { #character-choices .choice:hover { transform: none; } }
+
+/* The moving portrait sits above crystals/castle art without rebuilding images. */
+.cell.player > .portrait { z-index: 1; }
+
+/* A canvas diorama adds depth while the original maze remains available. */
+#maze-3d { display: block; width: 100%; height: auto; border: 2px solid #927958; border-radius: 16px; background: #101424; box-shadow: 0 8px 0 #1c1628, 0 18px 36px #0007; }
+.camera-toolbar { display: flex; align-items: center; justify-content: space-between; color: #d4ba85; font-size: 10px; letter-spacing: 2px; margin: 10px 0; }
+.camera-toolbar button { padding: 6px 12px; font-size: 12px; letter-spacing: 0; }
+.camera-help { font-size: 12px; color: #cfc2df; }
+#maze-3d.collect { animation: glow 0.4s ease; }
+#maze-3d.hurt { animation: canvas-hurt 0.4s ease; }
+@keyframes canvas-hurt { 50% { box-shadow: 0 0 32px #ff365b; border-color: #ff365b; } }
+@media (prefers-reduced-motion: reduce) { #maze-3d.collect, #maze-3d.hurt { animation: none; } }
+
+/* The Audit Quest: consistent 2D sprites and a simple parchment mission UI. */
+.title-quest { display: block; font-size: 20px; margin-top: 5px; color: #e9c778; }
+.story-intro { padding: 12px; border-radius: 10px; background: #fff4d199; border: 1px solid #b18c52; font-size: 13px; }
+.story-intro p { margin-bottom: 0; }
+.mission-panel { background: #f0dfb8; color: #382e3e; padding: 10px 14px; border: 1px solid #ad8547; border-radius: 10px; margin-bottom: 12px; }
+.mission-panel strong { font: bold 16px Georgia, serif; }
+.mission-panel p { margin: 5px 0 0; font-size: 12px; }
+.audit-learning { padding: 14px; background: #fff8df; color: #355544; border: 1px dashed #8e9b6a; border-radius: 10px; font-size: 14px; }
+.toolbar { flex-wrap: wrap; }
+.toolbar > span { white-space: nowrap; }
+.gryffindor { --scarf-main: #812b40; --scarf-stripe: #e8bd58; }
+.slytherin { --scarf-main: #23754f; --scarf-stripe: #dce5e0; }
+.ravenclaw { --scarf-main: #315a9e; --scarf-stripe: #b7834f; }
+.hufflepuff { --scarf-main: #ecc34f; --scarf-stripe: #26242e; }
+.house-scarf { display: block; height: 12px; width: 68%; border-radius: 3px; background: repeating-linear-gradient(110deg, var(--scarf-main) 0 9px, var(--scarf-stripe) 9px 18px); border-bottom: 2px solid #0003; margin: 4px 0 0; }
+/* SVG art is self-contained: no portrait downloads, PNG loads or image flicker. */
+.chibi-sprite { display: block; width: 100%; height: 100%; }
+.portrait.chibi-portrait { width: 42px; height: 50px; border: 0; border-radius: 0; overflow: visible; background: none; box-shadow: none; }
+#character-choices .portrait.chibi-portrait { width: 100%; height: 160px; aspect-ratio: auto; border: 0; border-radius: 0; background: radial-gradient(ellipse, #fff0c6 0%, #eedcaf 60%, #c4b28c); box-shadow: none; padding: 8px; }
+#character-choices .choice { background: #35263f; padding-bottom: 12px; border-radius: 14px; }
+#character-choices .choice:hover { transform: translateY(-3px); }
+#character-choices .chibi-sprite { filter: drop-shadow(0 3px 2px #54384a33); }
+#character-choices .character-name { font-size: 14px; }
+.cell > .portrait.chibi-portrait { position: absolute; inset: 2%; width: 96%; height: 96%; border: 0; overflow: visible; }
+.cell.player { background: radial-gradient(circle, #c7a9dd, #715587); }
+.cell > .chibi-enemy { inset: 2%; border: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible; }
+.chibi-enemy svg { display: block; width: 100%; height: 100%; }
+/* Keep the maze flat and readable, as requested for the 2D game. */
+#maze { padding: 8px; border: 2px solid #8b6baa; box-shadow: 0 0 24px #7844af33; }
+.wall { border: 1px solid #6a547e; background: #4c385e; box-shadow: inset 0 2px 0 #fff1; }
+.panel { border-bottom-width: 2px; box-shadow: 0 8px 24px #0004; }
+#end-screen { line-height: 1.5; }
+@media (max-width: 380px) { #character-choices .portrait.chibi-portrait { height: 135px; } .mission-panel strong { font-size: 14px; } }
+
+/* Discoveries and reports deepen the audit story without stopping movement. */
+.music-status { margin: 3px 0 10px; font-size: 11px; color: #cabbdd; }
+.clue-card { text-align: left; background: #f1dfb7; color: #382a3c; border: 1px solid #b99759; border-radius: 10px; padding: 12px; margin: 10px 0; }
+.clue-card strong { color: #703443; font: bold 15px Georgia, serif; }
+.clue-card p { font-size: 12px; line-height: 1.5; margin: 6px 0 0; }
+.clue-card .clue-lesson { color: #315b45; border-top: 1px dashed #b99759; padding-top: 7px; }
+.audit-notebook { padding: 10px 12px; margin: 10px 0; background: #e6d2a6; color: #3b2b40; border: 1px solid #aa854b; border-radius: 10px; text-align: left; font-size: 12px; line-height: 1.5; }
+.audit-notebook summary { cursor: pointer; font-weight: bold; color: #6b3342; }
+.audit-notebook li { margin: 10px 0; }
+.audit-notebook p { margin: 4px 0; }
+#audit-journal:empty::before { content: 'Collect a wand to discover your first clue.'; }
+
+/* Scroll notices sit below the maze and never catch clicks or pause gameplay. */
+.magical-scroll { position: fixed; bottom: 16px; right: 16px; z-index: 10; width: min(370px, calc(100vw - 32px)); padding: 14px 18px; display: flex; align-items: flex-start; gap: 10px; border: 2px solid #ac853e; border-radius: 16px 6px; background: linear-gradient(115deg, #fcf0cd, #e5cfa0); color: #452b3e; box-shadow: 0 0 20px #ddae5333, 0 8px 20px #0006; pointer-events: none; animation: scroll-in 0.2s ease-out; }
+.magical-scroll::before, .magical-scroll::after { content: ''; position: absolute; left: -5px; right: -5px; height: 6px; border: 1px solid #a07838; background: #d3b478; border-radius: 8px; }
+.magical-scroll::before { top: -5px; }
+.magical-scroll::after { bottom: -5px; }
+.magical-scroll strong { font: bold 14px Georgia, serif; }
+.magical-scroll p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
+.scroll-icon { font-size: 24px; }
+@keyframes scroll-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.rank-card { margin: 16px 0; border: 1px solid #ae8a42; border-radius: 12px; background: #fff2c7; padding: 14px; box-shadow: inset 0 0 16px #d8ae5222; }
+.rank-stars { font-size: 30px; color: #9c7027; letter-spacing: 4px; }
+.rank-card strong { color: #792c40; font: bold 20px Georgia, serif; }
+.rank-card p { font-size: 13px; margin: 6px 0; }
+.certificate { margin: 18px 0; padding: 24px 14px; border: 4px double #ad8536; outline: 1px solid #793146; outline-offset: -9px; background: radial-gradient(ellipse at top, #fff6dc, #ead2a0); color: #493342; }
+.certificate h3 { font: bold clamp(20px, 5vw, 27px) Georgia, serif; color: #792c40; margin: 12px 0 20px; }
+.certificate p { font-size: 13px; overflow-wrap: anywhere; }
+.certificate-kicker { font-size: 10px !important; letter-spacing: 1px; color: #746030; }
+.certificate-rank { font-weight: bold; color: #792c40; }
+.golden-seal { margin: 16px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 76px; height: 76px; border: 3px double #977023; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff1a6, #d4ae48 70%, #997025); color: #72511a; font-size: 28px; box-shadow: 0 3px 5px #7f642833; }
+.golden-seal small { font-size: 8px; letter-spacing: 1px; }
+.certificate-status { color: #2f654c; font-weight: bold; letter-spacing: 2px; }
+#certificate-download-status { font-size: 12px; }
+@media (max-width: 380px) { .certificate { padding: 20px 10px; } .magical-scroll { padding: 10px; bottom: 10px; } }
+@media (prefers-reduced-motion: reduce) { .magical-scroll { animation: none; } }
+
+/* Large touch targets sit directly below the maze, including on phones. */
+.touch-controls { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(2, 56px); gap: 8px; justify-content: center; width: fit-content; margin: 14px auto; padding: 8px; border-radius: 14px; background: #171326e8; border: 1px solid #9c7c47; }
+.touch-controls button { padding: 0; font-size: 24px; color: #fff0bf; background: #69445d; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.touch-controls .pressed { background: #9b6b43; box-shadow: inset 0 0 12px #ffd98088; }
+.move-up { grid-column: 2; grid-row: 1; }
+.move-left { grid-column: 1; grid-row: 2; }
+.move-down { grid-column: 2; grid-row: 2; }
+.move-right { grid-column: 3; grid-row: 2; }
+@media (max-width: 600px) { .touch-controls { position: sticky; bottom: 8px; z-index: 5; } .magical-scroll { bottom: 175px; } }
+
+/* Independent mission cards; no locked level progression. */
+.mission-choices { display: grid; gap: 12px; margin: 18px 0; }
+.mission-choice { display: grid; grid-template-columns: 42px 1fr; gap: 5px 10px; padding: 15px; text-align: left; background: #35253e; border: 2px solid #ac8747; border-radius: 12px; }
+.mission-choice > span { grid-row: 1 / 3; font-size: 30px; align-self: center; }
+.mission-choice strong { font: bold 18px Georgia, serif; }
+.mission-choice small { font-size: 12px; color: #dbcbb1; }
+.mission-choice.selected { border-color: #fff0ab; box-shadow: 0 0 0 2px #815e2c, 0 0 18px #efc06466; background: #664552; }
+#mission-enter:disabled { opacity: 0.5; cursor: default; }
+.cell > .enemy-avatar { z-index: 2; }
+.cell.player > .portrait { z-index: 3; }
+.portrait.protected { filter: drop-shadow(0 0 4px #8df5d2); }
